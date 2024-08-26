@@ -2,15 +2,16 @@ import { initializeApp } from "firebase/app";
 import { getMessaging, getToken } from "firebase/messaging";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCP5RSVk-y17ESxoKJuSlAV3rQ61ZmJeyk",
-  authDomain: "some-firebase-97dfc.firebaseapp.com",
-  projectId: "some-firebase-97dfc",
-  storageBucket: "some-firebase-97dfc.appspot.com",
-  messagingSenderId: "440905053097",
-  appId: "1:440905053097:web:b1dd7466968bac72470ab8",
-  measurementId: "G-27PVPDKWY8",
+  apiKey: "AIzaSyB_rVEn4ImOdNFGoUPNCj-UrXE3tygWIEY",
+  authDomain: "golden-bee-651eb.firebaseapp.com",
+  databaseURL:
+    "https://golden-bee-651eb-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "golden-bee-651eb",
+  storageBucket: "golden-bee-651eb.appspot.com",
+  messagingSenderId: "616914078130",
+  appId: "1:616914078130:web:602db051750307802ebcab",
+  measurementId: "G-NWK8EZ7GQX",
 };
-
 function requestPermission() {
   console.log("Requesting permission...");
   Notification.requestPermission().then((permission) => {
@@ -21,7 +22,7 @@ function requestPermission() {
       const messaging = getMessaging(app);
       getToken(messaging, {
         vapidKey:
-          "BCKNSY0FAgDlbgevvqBGsXdadLiRCrFR1wbWXqFYgQJOV3jX8nTSHAQzXcB91c6GGlmFwCfCcxCUK_UxDL7nTLA",
+          "BOe6ILkdmHPX-IbeMt2ddI5PUYPuwuEmHuCsgZnAXIYogbKwTNV_wzOgDSybTB-tSLS_OsPIjnAQDDEZF6pcGvw",
       }).then((currentToken) => {
         if (currentToken) {
           console.log("currentToken: ", currentToken);
@@ -36,3 +37,7 @@ function requestPermission() {
 }
 
 requestPermission();
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+export const messaging = getMessaging(app);
