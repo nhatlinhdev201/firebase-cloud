@@ -1,13 +1,13 @@
+import { get, onValue, ref, remove, set, update } from "firebase/database";
+import database from "./config";
+
 /**
- * Gửi dữ liệu lên Firebase Realtime Database.
+ * Gửi dữ liệu lên Firebase Realtime Database vào một node.
  *
  * @param {string || number} id - ID của user hoặc nhóm user.
  * @param {string || number} key - Tên key con dưới user/group ID muốn lưu dữ liệu.
  * @param {object} data - Đối tượng dữ liệu cần gửi.
  */
-
-import { onValue, ref, remove, set, update } from "firebase/database";
-import database from "./config";
 
 export const FBRT_SendRealtimeData = async (id, key, data) => {
   if (!id || !key || typeof newData !== "object") {
@@ -95,5 +95,34 @@ export const FBRT_DeleteDataRealtime = async (id, key) => {
     console.log("Data deleted successfully");
   } catch (error) {
     console.error("Error deleting data:", error.message);
+  }
+};
+
+/**
+ * Hàm gửi dữ liệu tới tất cả các user online trong một group.
+ *
+ * @param {string} key - Key cho dữ liệu.
+ * @param {object} data - Dữ liệu cần gửi.
+ * @param {string} channel - Kênh (channel) để xác định nhóm người dùng online.
+ */
+export const FBRT_SendDataToGroup = async (key, data, channel) => {
+  if (!key || typeof data !== "object") {
+      console.error("Missing required parameters");
+      return;
+  }
+
+  try {
+      const channelRef = ref(database, `realtime_channel/${channel}`);
+      const channelSnapshot = await get(channelRef);
+      const onlineUsers = channelSnapshot.val() || {};
+
+      const updates = Object.keys(onlineUsers).map(id => {
+          return set(ref(database, `realtime_data/${id}/${key}`), data);
+      });
+
+      await Promise.all(updates);
+      console.log("Data sent successfully to all online users");
+  } catch (error) {
+      console.error("Error sending data to group:", error);
   }
 };

@@ -1,21 +1,18 @@
 import { useState } from "react";
-import { FBRT_SendDataToGroup, useOnlineChannel, useRealtimeData } from "../firebaseRealtimeData/firebaseHooks";
+import { useRegisterNotifiChannel, useListenNotifiOnNode } from "../firebaseRealtimeData/firebaseHooks";
 import { Link } from "react-router-dom";
+import { FBRT_SendDataToGroup } from "../firebaseRealtimeData/firebaseAction";
 
 function Home() {
-    // const [user1, setUser1] = useState(false);
-    // const [user2, setUser2] = useState(false);
-    // const [user3, setUser3] = useState(false);
-    // const [user4, setUser4] = useState(false);
     const [data1, setData1] = useState([]);
     const [data2, setData2] = useState([]);
     const [data3, setData3] = useState([]);
-    useOnlineChannel(111, "group1");
-    useOnlineChannel(112, "group1");
-    useOnlineChannel(113, "group1");
-    useRealtimeData(111, "payment", setData1);
-    useRealtimeData(112, "payment", setData2);
-    useRealtimeData(113, "payment", setData3);
+    useRegisterNotifiChannel(111, "group1");
+    useRegisterNotifiChannel(112, "group1");
+    useRegisterNotifiChannel(113, "group1");
+    useListenNotifiOnNode(111, "payment", setData1);
+    useListenNotifiOnNode(112, "payment", setData2);
+    useListenNotifiOnNode(113, "payment", setData3);
     const handle = async () => {
         await FBRT_SendDataToGroup("payment", { hello: "Hah1" }, "group1");
     }
@@ -59,6 +56,9 @@ function Home() {
             </div>
             <Link to={"/about"}>
                 <h2>Go send 1 - 1</h2>
+            </Link>
+            <Link to={"/listen"}>
+                <h2>listen</h2>
             </Link>
         </div>
     );

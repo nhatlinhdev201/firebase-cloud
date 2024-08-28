@@ -1,16 +1,15 @@
-import { get, onDisconnect, onValue, ref, remove, set } from "firebase/database";
+import { onDisconnect, onValue, ref, remove, set } from "firebase/database";
 import { useEffect, useState } from "react";
 import database from "./config";
 
 /**
  * Hook lắng nghe dữ liệu realtime từ Firebase Realtime Database và xử lý dữ liệu.
  *
- * @param {string} groupId - ID của nhóm dữ liệu.
  * @param {string} id - ID của user hoặc nhóm user.
  * @param {string} key - Tên key con dưới user/group ID mà bạn muốn lắng nghe.
  * @param {function} callback - Hàm callback sẽ được gọi khi dữ liệu thay đổi.
  */
-export const useRealtimeData = (id, key, callback) => {
+export const useListenNotifiOnNode = (id, key, callback) => {
     console.log("------mounted listen data realtime---------")
     const [data, setData] = useState([]);
 
@@ -60,7 +59,7 @@ export const useRealtimeData = (id, key, callback) => {
  * @param {string || number} id - ID của người dùng.
  * @param {string || number} channel - Kênh mà người dùng đăng ký vào.
  */
-export const useOnlineChannel = (id, channel) => {
+export const useRegisterNotifiChannel = (id, channel) => {
     useEffect(() => {
         console.log("------mounted online channel---------");
 
@@ -94,30 +93,41 @@ export const useOnlineChannel = (id, channel) => {
 
 
 /**
- * Hàm gửi dữ liệu tới tất cả các user online trong một group.
- *
- * @param {string} key - Key cho dữ liệu.
- * @param {object} data - Dữ liệu cần gửi.
- * @param {string} channel - Kênh (channel) để xác định nhóm người dùng online.
+ * Hook để lắng nghe thay đổi dữ liệu realtime trên một node Firebase Realtime Database.
+ 
+ * @param {string} id - ID của user hoặc nhóm user.
+ * @param {string} key - Tên key con dưới user/group ID mà bạn muốn lắng nghe.
+ * @param {function} callback - Hàm callback sẽ được gọi khi dữ liệu thay đổi.
  */
-export const FBRT_SendDataToGroup = async (key, data, channel) => {
-    if (!key || typeof data !== "object") {
-        console.error("Missing required parameters");
-        return;
-    }
+export const useListenRealtimeData = (id, key, callback) => {
+    const [data, setData] = useState(null);
 
-    try {
-        const channelRef = ref(database, `realtime_channel/${channel}`);
-        const channelSnapshot = await get(channelRef);
-        const onlineUsers = channelSnapshot.val() || {};
+    useEffect(() => {
+        if (!id || !key) {
+            console.error("Missing required parameters");
+            return;
+        }
 
-        const updates = Object.keys(onlineUsers).map(id => {
-            return set(ref(database, `realtime_data/${id}/${key}`), data);
+        const dataRef = ref(database, `realtime_data/${id}/${key}`);
+
+        const handleDataChange = (snapshot) => {
+            const newData = snapshot.val();
+            setData(newData);
+            if (callback) {
+                callback(newData);
+            }
+        };
+
+        // Bắt đầu lắng nghe dữ liệu thay đổi
+        const unsubscribe = onValue(dataRef, handleDataChange, (error) => {
+            console.error("Error listening for data:", error);
         });
 
-        await Promise.all(updates);
-        console.log("Data sent successfully to all online users");
-    } catch (error) {
-        console.error("Error sending data to group:", error);
-    }
+        // Cleanup function để gỡ bỏ listener khi component unmount
+        return () => {
+            unsubscribe();
+        };
+    }, [id, key, callback]);
+
+    return data;
 };

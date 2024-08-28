@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRealtimeData } from "../firebaseRealtimeData/firebaseHooks";
+import { useListenNotifiOnNode } from "../firebaseRealtimeData/firebaseHooks";
 import { FBRT_UpdateDataRealtime } from "../firebaseRealtimeData/firebaseAction";
 import { Link } from "react-router-dom";
 
@@ -7,7 +7,7 @@ const About = () => {
 
     const [data, setData] = useState([]);
 
-    useRealtimeData(123, "status", setData);
+    useListenNotifiOnNode(123, "status", setData);
   
     const handle = async () => {
         await FBRT_UpdateDataRealtime(123, "status", { hello: "ok" });
@@ -27,6 +27,9 @@ const About = () => {
             </div>
             <Link to={"/"}>
                 <h2>Go send 1 -n </h2>
+            </Link>
+            <Link to={"/listen"}>
+                <h2>listen</h2>
             </Link>
         </div>
     );
